@@ -1,0 +1,17 @@
+origem,destino,prazo,seguro,kg,fixa
+florianopolis,brasilia,3,3,flo,13
+florianopolis,curitiba,3,3,flo,7
+florianopolis,saopaulo,4,3,flo,7
+florianopolis,fortaleza,4,3,flo,5
+florianopolis,balneario,4,2,flo,5
+florianopolis,saojose,3,2,flo,4
+florianopolis,palhoca,1,2,flo,2
+florianopolis,valparaiso,1,2,flo,11
+brasilia,florianopolis,3,2,central,12
+curitiba,florianopolis,4,3,central,5
+saopaulo,florianopolis,1,3,central,8
+fortaleza,florianopolis,3,3,central,8
+balneario,florianopolis,1,2,secundaria,5
+saojose,florianopolis,4,2,secundaria,12
+palhoca,florianopolis,3,2,secundaria,3
+valparaiso,florianopolis,3,3,secundaria,4

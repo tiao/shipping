@@ -1,0 +1,12 @@
+nome,inicial,final,preco
+flo,0,10,12
+flo,11,20,11
+flo,20,30,10
+flo,30,,5
+central,0,10,7
+central,10,20,8
+central,20,30,9
+central,30,,10
+secundaria,0,7,23
+secundaria,7,9.5,12.5
+secundaria,9.5,,7.5
