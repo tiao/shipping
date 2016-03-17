@@ -1,9 +1,12 @@
 # -*- coding: utf8 -*-
 
 from axado import load_tables, load_file, parse_arguments
-from axado import shipping_cost, find_route, find_price_per_kg
+from axado import shipping_cost, find_route, find_price_per_kg, main
 import pytest
 
+##############################################################################
+# Data for Tests
+##############################################################################
 
 DIR_TEST = 'test'
 
@@ -24,6 +27,10 @@ ROUTES = [
     {'origem': 'flo', 'destino': 'vps', 'prazo': '1', 'seguro': '2',
         'kg': 'flo', 'fixa': '11'},
 ]
+
+##############################################################################
+# Unit Test
+##############################################################################
 
 
 def test_load_file_with_cvs():
@@ -131,3 +138,21 @@ def test_price_per_kg_final_infinite():
 def test_price_per_kg_not_found():
     input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
     assert find_price_per_kg(input_data, PRICE_PER_KG, 'central') is None
+
+
+def test_basic_values(capsys):
+    # $ axado.py florianopolis brasilia 50 7
+    # tabela:3, 104.79
+    # tabela2:2, 109.05
+    output1 = "tabela:3, 104.79\ntabela2:2, 109.05\n"
+    main(['florianopolis', 'brasilia', '50', '7'])
+    out, err = capsys.readouterr()
+    assert out == output1
+
+    # $ axado.py saopaulo florianopolis 50 130
+    # tabela:1, 1393.09
+    # tabela2:-, -
+    output2 = "tabela:1, 1393.09\ntabela2:-, -\n"
+    main(['saopaulo', 'florianopolis', '50', '130'])
+    out, err = capsys.readouterr()
+    assert out == output2

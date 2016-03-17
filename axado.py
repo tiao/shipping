@@ -15,6 +15,12 @@ from math import ceil
 import argparse
 import csv
 import os
+import sys
+
+# Globals variable (environment)
+DIR_DATA = 'data'
+ROUTE_TABLE = 'rotas'
+PPK_TABLE = 'preco_por_kg'
 
 
 def load_file(filename):
@@ -152,3 +158,28 @@ def find_price_per_kg(input_data, table_data, route_kg):
             break
 
     return price_per_kg
+
+
+def main(args):
+    # Get parameters and info from files csvs
+    input_data = parse_arguments(args)
+    tables_data = load_tables(DIR_DATA)
+
+    # Print the shipping cost for each directory in DIR_DATA
+    for table in sorted(tables_data.keys()):
+        time, total = (None, None)
+        route = find_route(input_data, tables_data[table][ROUTE_TABLE])
+        if route:
+            price_per_kg = find_price_per_kg(
+                input_data, tables_data[table][PPK_TABLE], route['kg'])
+
+            time, total = shipping_cost(input_data, route, price_per_kg)
+
+        if total is None:
+            total = '-'
+            time = '-'
+
+        print("{}:{}, {}".format(table, time, total))
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
