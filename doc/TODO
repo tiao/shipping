@@ -1,12 +1,12 @@
  Axado:
- ☐ Infra
+ ✔ Infra @done (16-03-16 22:03)
    ✔ repositório @done (16-03-16 10:09)
    ✔ cobertura @done (16-03-16 11:37)
    ✔ tox @done (16-03-16 14:19)
-   ☐ CI
+   ✔ CI @done (16-03-16 21:53)
    ✔ Documentação @done (16-03-16 20:07)
 
- ☐ Leitura dos arquivos
+ ✔ Leitura dos arquivos @done (16-03-16 22:03)
    ✔ função que le arquivos @done (16-03-16 11:17)
    ✔ função que le o diretório data e carrega os arquivos @done (16-03-16 12:03)
    ✔ testes unitários @done (16-03-16 16:20)
