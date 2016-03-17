@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 
-from axado import load_tables, load_file
+from axado import load_tables, load_file, parse_arguments
+import pytest
+
 
 DIR_TEST = 'test'
 
@@ -38,3 +40,33 @@ def test_load_tables():
     assert data['table1']['price_per_kg'] == PRICE_PER_KG
     assert data['table1']['routes'] == ROUTES
     assert data['table2']['price_per_kg'] == PRICE_PER_KG
+
+
+def test_parse_arguments(capsys):
+    # happy end
+    assert parse_arguments(['fln', 'cwb', '12', '34']) == {
+        'src': 'fln', 'dst': 'cwb', 'price': 12, 'weight': 34}
+    # missing weight or price
+    with pytest.raises(SystemExit):
+        parse_arguments(['fln', 'cwb', '12'])
+    # missing src or dst
+    with pytest.raises(SystemExit):
+        parse_arguments(['fln', '12', '34'])
+
+
+def test_parse_arguments_without_args(capsys):
+    with pytest.raises(SystemExit):
+        parse_arguments([])
+    out, err = capsys.readouterr()
+    assert 'error:' in err
+
+
+def test_parse_argument_help(capsys):
+    with pytest.raises(SystemExit):
+        parse_arguments(['-h'])
+    out, err = capsys.readouterr()
+    assert "origem       Local de origem" in out
+    assert "destino      Local de destino" in out
+    assert "nota_fiscal  Valor da nota fiscal" in out
+    assert "peso         Peso do objeto" in out
+    assert not err
