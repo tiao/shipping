@@ -8,8 +8,10 @@ import pytest
 # Data for Tests
 ##############################################################################
 
+# The DIR_TEST has two directory, table1 and table2, where are the files csvs.
 DIR_TEST = 'test'
 
+# Obs: The contend of files in DIR_TEST is represented in the variables below
 PRICE_PER_KG = [
     {'nome': 'flo', 'inicial': '0', 'final': '10', 'preco': '12'},
     {'nome': 'flo', 'inicial': '11', 'final': '20', 'preco': '11'},
@@ -42,7 +44,7 @@ def test_load_file_with_tvs():
 
 
 def test_load_file_with_txt():
-    assert load_file(DIR_TEST + '/file.txt') is None
+    assert load_file('doc/README.txt') is None
 
 
 def test_load_tables():
@@ -156,3 +158,29 @@ def test_basic_values(capsys):
     main(['saopaulo', 'florianopolis', '50', '130'])
     out, err = capsys.readouterr()
     assert out == output2
+
+##############################################################################
+# Bugs
+##############################################################################
+
+
+def test_price_per_kg_bug_weight_10():
+    # weight == 9.99 is OK
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 9.99}
+    assert find_price_per_kg(
+         input_data, PRICE_PER_KG, ROUTES[0]['kg']) == PRICE_PER_KG[0]
+
+    # weight == 10 ... 10.99 not found table
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 10}
+    assert not find_price_per_kg(input_data, PRICE_PER_KG, ROUTES[0]['kg'])
+
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 10.99}
+    assert not find_price_per_kg(input_data, PRICE_PER_KG, ROUTES[0]['kg'])
+
+    # weight == 11 is OK
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 11}
+    assert find_price_per_kg(
+         input_data, PRICE_PER_KG, ROUTES[0]['kg']) == PRICE_PER_KG[1]
+    #
+    # Conclusion: The error is at preco_por_kg.csv:2, range jump the number 10
+    #
