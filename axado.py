@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf8 -*-
 """ Shipping Calculation
 
@@ -10,9 +11,10 @@ Makes the shipping calculation based in input parameters:
 The csv tables in data directory contains all the information for
 the calculations.
 """
+from math import ceil
+import argparse
 import csv
 import os
-import argparse
 
 
 def load_file(filename):
@@ -72,3 +74,81 @@ def parse_arguments(args):
     data['weight'] = values.peso
 
     return data
+
+
+def shipping_cost(input_data, route, price_per_kg):
+    """ Use input data and tables to find shipping cost
+
+    Return a tuple with time and total
+    """
+    seguro = input_data['price'] * float(route['seguro']) / 100
+
+    fixa = 0
+    if 'fixa' in route.keys():
+        fixa = float(route['fixa'])
+
+    faixa = input_data['weight'] * float(price_per_kg['preco'])
+
+    subtotal = seguro + fixa + faixa
+
+    if 'alfandega' in route.keys():
+        alfandega = subtotal * (float(route['alfandega']) / 100)
+        subtotal = subtotal + alfandega
+
+    if 'icms' in route.keys():
+        icms = float(route['icms'])
+    else:
+        icms = 6
+
+    total = subtotal / (float(100 - icms) / 100)
+    # round up total
+    total = ceil(total*100) / 100
+    return (int(route['prazo']), total)
+
+
+def find_route(input_data, table_data):
+    """ Find a row in route table based in input data
+
+    Return a dict with data or None
+    """
+    route = None
+    for row in table_data:
+        src_equal = (input_data['src'] == row['origem'])
+        dst_equal = (input_data['dst'] == row['destino'])
+        if (src_equal and dst_equal) is True:
+            route = row
+            break
+
+    if route is None:
+        return route
+
+    # limit == 0 equal infinite
+    if 'limite' in route.keys():
+        if route['limite'] == '0':
+            pass
+        elif input_data['weight'] > float(route['limite']):
+            return None
+
+    return route
+
+
+def find_price_per_kg(input_data, table_data, route_kg):
+    """ Find a row in price_per_kg table based in input data
+
+    Return a dict with data or None
+    """
+    price_per_kg = None
+    for row in table_data:
+        name_equal = (route_kg == row['nome'])
+        initial_weight = (input_data['weight'] >= float(row['inicial']))
+        # final == '' equal infinite
+        if row['final'] == '':
+            final_weight = True
+        else:
+            final_weight = (input_data['weight'] < float(row['final']))
+
+        if (name_equal and initial_weight and final_weight) is True:
+            price_per_kg = row
+            break
+
+    return price_per_kg

@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
 from axado import load_tables, load_file, parse_arguments
+from axado import shipping_cost, find_route, find_price_per_kg
 import pytest
 
 
@@ -14,10 +15,14 @@ PRICE_PER_KG = [
 ]
 
 ROUTES = [
-    {'origem': 'flo', 'destino': 'bsb', 'prazo': '3', 'seguro': '3', 'kg': 'flo', 'fixa': '13'},
-    {'origem': 'flo', 'destino': 'cwb', 'prazo': '3', 'seguro': '3', 'kg': 'flo', 'fixa': '7'},
-    {'origem': 'flo', 'destino': 'sao', 'prazo': '4', 'seguro': '3', 'kg': 'flo', 'fixa': '7'},
-    {'origem': 'flo', 'destino': 'vps', 'prazo': '1', 'seguro': '2', 'kg': 'flo', 'fixa': '11'},
+    {'origem': 'flo', 'destino': 'bsb', 'prazo': '3', 'seguro': '3',
+        'kg': 'flo', 'fixa': '13'},
+    {'origem': 'flo', 'destino': 'cwb', 'prazo': '3', 'seguro': '3',
+        'kg': 'flo', 'fixa': '7'},
+    {'origem': 'flo', 'destino': 'sao', 'prazo': '4', 'seguro': '3',
+        'kg': 'flo', 'fixa': '7'},
+    {'origem': 'flo', 'destino': 'vps', 'prazo': '1', 'seguro': '2',
+        'kg': 'flo', 'fixa': '11'},
 ]
 
 
@@ -70,3 +75,59 @@ def test_parse_argument_help(capsys):
     assert "nota_fiscal  Valor da nota fiscal" in out
     assert "peso         Peso do objeto" in out
     assert not err
+
+
+def test_shipping_cost_1():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    result = (3, 104.79)
+    assert shipping_cost(input_data, ROUTES[0], PRICE_PER_KG[0]) == result
+
+
+def test_shipping_cost_2():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    result = (2, 109.05)
+    route = {'origem': 'flo', 'destino': 'bsb', 'limite': '0', 'prazo': '2',
+             'seguro': '2', 'kg': 'flo', 'alfandega': '0', 'icms': '6'}
+    ppk = {'nome': 'flo', 'inicial': '0', 'final': '20', 'preco': '14.5'}
+    assert shipping_cost(input_data, route, ppk) == result
+
+
+def test_find_route():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    assert find_route(input_data, ROUTES) == ROUTES[0]
+
+
+def test_find_route_not_found():
+    input_data = {'src': 'flo', 'dst': 'eua', 'price': 50, 'weight': 7}
+    assert find_route(input_data, ROUTES) is None
+
+
+def test_find_route_over_limit():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    route = {'origem': 'flo', 'destino': 'bsb', 'limite': '1', 'prazo': '2',
+             'seguro': '2', 'kg': 'flo', 'alfandega': '0', 'icms': '6'}
+    assert find_route(input_data, [route]) is None
+
+
+def test_find_route_limit_infinite():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    route = {'origem': 'flo', 'destino': 'bsb', 'limite': '0', 'prazo': '2',
+             'seguro': '2', 'kg': 'flo', 'alfandega': '0', 'icms': '6'}
+    assert find_route(input_data, [route]) == route
+
+
+def test_price_per_kg():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    assert find_price_per_kg(input_data, PRICE_PER_KG,
+                             ROUTES[0]['kg']) == PRICE_PER_KG[0]
+
+
+def test_price_per_kg_final_infinite():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 60}
+    assert find_price_per_kg(input_data, PRICE_PER_KG,
+                             ROUTES[0]['kg']) == PRICE_PER_KG[3]
+
+
+def test_price_per_kg_not_found():
+    input_data = {'src': 'flo', 'dst': 'bsb', 'price': 50, 'weight': 7}
+    assert find_price_per_kg(input_data, PRICE_PER_KG, 'central') is None

@@ -12,6 +12,13 @@
    ✔ testes unitários @done (16-03-16 16:20)
 
  ✔ Leitura dos parametros @done (16-03-17 00:30)
- ☐ Calculo do frete
+
+ ✔ Calculo do frete @done (16-03-17 07:04)
+   ✔ Função para calculo do frete @done (16-03-17 06:08)
+   ✔ Buscar rota na tabela @done (16-03-17 06:20)
+   ✔ Buscar preco_por_quilo na tabela @done (16-03-17 06:20)
+   ✔ testes unitários @done (16-03-17 06:44)
+
  ☐ Gerar output
+
  ☐ Review
